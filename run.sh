@@ -18,10 +18,8 @@ echo "----------------------------------------"
 
 # Define parameter arrays
 MODES=("query" "passage")
-# BATCH_SIZES=(1 16 32 64)
-# CONCURRENCIES=(1 4 8 16)
-BATCH_SIZES=(1 2)
-CONCURRENCIES=(1 2)
+BATCH_SIZES=(1 16 32 64)
+CONCURRENCIES=(1 4 8 16)
 
 # Function to run a single benchmark
 run_benchmark() {
