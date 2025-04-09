@@ -24,7 +24,6 @@ function appendResultsToCsv(config: any, results: any): void {
 
   // Append the results
   fs.appendFileSync(csvFilePath, csvRow + "\n");
-  console.log(`Results appended to ${csvFilePath}`);
 }
 
 async function main() {

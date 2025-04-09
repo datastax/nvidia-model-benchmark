@@ -64,13 +64,12 @@ export function getConfiguration(): Configuration {
       },
       url: {
         type: "string",
-        describe:
-          "URL to connect to (can also be set via URL_ENDPOINT env var)",
+        describe: "URL to connect to (can also be set via URL env var)",
         alias: "u",
       },
       model: {
         type: "string",
-        describe: "Model to use (can also be set via MODEL_NAME env var)",
+        describe: "Model to use (can also be set via MODEL env var)",
         alias: "M",
       },
       numRequests: {
@@ -84,18 +83,18 @@ export function getConfiguration(): Configuration {
     .parseSync();
 
   // Get URL from command line or environment variable
-  const url = argv.url || process.env.URL_ENDPOINT;
+  const url = argv.url || process.env.URL;
   if (!url) {
     throw new Error(
-      "URL must be provided via --url flag or URL_ENDPOINT environment variable",
+      "URL must be provided via --url flag or URL environment variable",
     );
   }
 
   // Get model from command line or environment variable
-  const model = argv.model || process.env.MODEL_NAME;
+  const model = argv.model || process.env.MODEL;
   if (!model) {
     throw new Error(
-      "Model must be provided via --model flag or MODEL_NAME environment variable",
+      "Model must be provided via --model flag or MODEL environment variable",
     );
   }
 

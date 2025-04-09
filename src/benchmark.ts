@@ -63,7 +63,6 @@ export async function runBenchmark(
 
   // Generate chunks based on the mode
   const chunks = await generateChunks(config.mode);
-  console.log(`Generated ${chunks.length} chunks for ${config.mode} mode`);
 
   const fullUrl = `${config.url}/v1/embeddings`;
 
@@ -90,9 +89,6 @@ export async function runBenchmark(
       },
     ],
   };
-
-  console.log(`Running benchmark with ${numRequests} requests...`);
-  console.log(`Generating a new random batch for each request...`);
 
   // Run the benchmark
   const results = await new Promise<autocannon.Result>((resolve, reject) => {
@@ -170,10 +166,14 @@ export function formatResultsAsCsv(
   // Calculate number of tokens based on mode and batch size
   // This is an approximation - in a real system you might want to calculate this more precisely
   const tokensPerChunk = config.mode === "query" ? 20 : 300;
-  const numberOfTokens = tokensPerChunk * config.batchSize;
+
+  // Remove "nvidia/" prefix from model name if it exists
+  const modelName = config.model.startsWith("nvidia/")
+    ? config.model.substring(7)
+    : config.model;
 
   // Format: model name, number of tokens, batch size, concurrency, min latency, median latency, p90 latency, p99 latency, max latency, throughput
-  return `${config.model},${numberOfTokens},${config.batchSize},${config.concurrency},${results.minLatency},${results.medianLatency.toFixed(2)},${results.p90Latency.toFixed(2)},${results.p99Latency.toFixed(2)},${results.maxLatency},${results.requestsPerSecond.toFixed(2)}`;
+  return `${modelName},${tokensPerChunk},${config.batchSize},${config.concurrency},${results.minLatency},${results.medianLatency.toFixed(2)},${results.p90Latency.toFixed(2)},${results.p99Latency.toFixed(2)},${results.maxLatency},${results.requestsPerSecond.toFixed(2)}`;
 }
 
 // Example of how to use the exported runBenchmark function:
