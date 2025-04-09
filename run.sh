@@ -28,7 +28,7 @@ run_benchmark() {
   local concurrency=$3
   
   # Run the benchmark
-  npm run bench -- --mode "$mode" --batchSize "$batch_size" --concurrency "$concurrency" --num-requests=10
+  npm run bench -- --mode "$mode" --batchSize "$batch_size" --concurrency "$concurrency"
   
   # Check if benchmark was successful
   if [ $? -eq 0 ]; then
