@@ -1,0 +1,29 @@
+{
+  "name": "nvidia-bench",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -rf dist && npx tsc",
+    "bench": "node dist/index.js",
+    "format": "prettier --write \"src/**/*.{ts,js,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,json}\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/autocannon": "^7.12.6",
+    "@types/node": "^22.13.13",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "@types/cheerio": "^0.22.35",
+    "@types/yargs": "^17.0.33",
+    "autocannon": "^8.0.0",
+    "cheerio": "^1.0.0",
+    "gpt-tokenizer": "^2.1.2",
+    "yargs": "^17.7.2"
+  }
+}
