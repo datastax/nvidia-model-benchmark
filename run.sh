@@ -1,34 +1,100 @@
 #!/bin/bash
 
-# Check if URL and MODEL environment variables are set
+# Check if configuration file is provided
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 <conf_file>"
+  exit 1
+fi
+
+CONF_FILE=$1
+
+# Check if configuration file exists
+if [ ! -f "$CONF_FILE" ]; then
+  echo "Error: Configuration file '$CONF_FILE' not found"
+  exit 1
+fi
+
+# Initialize variables
+URL=""
+MODEL=""
+MODES=()
+BATCH_SIZES=()
+CONCURRENCIES=()
+
+# Parse configuration file
+while IFS= read -r line || [ -n "$line" ]; do
+  # Skip empty lines and comments
+  if [[ -z "$line" || "$line" =~ ^# ]]; then
+    continue
+  fi
+  
+  # Extract key and value
+  key=$(echo "$line" | cut -d= -f1 | tr -d ' ')
+  value=$(echo "$line" | cut -d= -f2- | tr -d ' ')
+  
+  case "$key" in
+    URL)
+      URL="$value"
+      ;;
+    MODEL)
+      MODEL="$value"
+      ;;
+    MODE)
+      # Convert space-separated string to array
+      IFS=' ' read -r -a MODES <<< "$value"
+      ;;
+    BATCH_SIZE)
+      # Convert space-separated string to array
+      IFS=' ' read -r -a BATCH_SIZES <<< "$value"
+      ;;
+    CONCURRENCY)
+      # Convert space-separated string to array
+      IFS=' ' read -r -a CONCURRENCIES <<< "$value"
+      ;;
+    *)
+      echo "Warning: Unknown setting '$key' in configuration file"
+      ;;
+  esac
+done < "$CONF_FILE"
+
 if [ -z "$URL" ]; then
-  echo "Error: URL environment variable is not set"
+  echo "Error: URL is not set in configuration file"
   exit 1
 fi
 
 if [ -z "$MODEL" ]; then
-  echo "Error: MODEL environment variable is not set"
+  echo "Error: MODEL is not set in configuration file"
   exit 1
+fi
+
+# Use default values if arrays are empty
+if [ ${#MODES[@]} -eq 0 ]; then
+  MODES=("query" "passage")
+fi
+
+if [ ${#BATCH_SIZES[@]} -eq 0 ]; then
+  BATCH_SIZES=(1 16 32 64)
+fi
+
+if [ ${#CONCURRENCIES[@]} -eq 0 ]; then
+  CONCURRENCIES=(1 4 8 16)
 fi
 
 echo "Starting benchmark suite with:"
 echo "  URL: $URL"
 echo "  Model: $MODEL"
+echo "  Modes: ${MODES[*]}"
+echo "  Batch Sizes: ${BATCH_SIZES[*]}"
+echo "  Concurrencies: ${CONCURRENCIES[*]}"
 echo "----------------------------------------"
-
-# Define parameter arrays
-MODES=("query" "passage")
-BATCH_SIZES=(1 16 32 64)
-CONCURRENCIES=(1 4 8 16)
 
 # Function to run a single benchmark
 run_benchmark() {
   local mode=$1
   local batch_size=$2
   local concurrency=$3
-  
-  # Run the benchmark
-  npm run bench -- --mode "$mode" --batchSize "$batch_size" --concurrency "$concurrency"
+
+  npm run bench -- --url "$URL" --model "$MODEL" --mode "$mode" --batchSize "$batch_size" --concurrency "$concurrency"
   
   # Check if benchmark was successful
   if [ $? -eq 0 ]; then
