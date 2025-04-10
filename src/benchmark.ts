@@ -53,9 +53,14 @@ export async function runBenchmark(
 ): Promise<BenchmarkResult> {
   const numRequests = config.numRequests || 1000;
 
+  // Add "nvidia/" prefix to model name if it doesn't already have it
+  const modelName = config.model.startsWith("nvidia/")
+    ? config.model
+    : `nvidia/${config.model}`;
+
   console.log(`Starting benchmark with configuration:`);
   console.log(`  URL: ${config.url}/v1/embeddings`);
-  console.log(`  Model: ${config.model}`);
+  console.log(`  Model: ${modelName}`);
   console.log(`  Mode: ${config.mode}`);
   console.log(`  Batch Size: ${config.batchSize}`);
   console.log(`  Concurrency: ${config.concurrency}`);
@@ -79,7 +84,7 @@ export async function runBenchmark(
         setupRequest: (req: any) => {
           req.body = JSON.stringify({
             input: generateRandomBatch(chunks, config.batchSize),
-            model: config.model,
+            model: modelName,
             input_type: config.mode,
             encoding_format: "float",
           });

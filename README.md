@@ -37,7 +37,7 @@ CONCURRENCY=1 4 8 16
 ##### Required Parameters
 
 - `URL`: The URL of the embedding service
-- `MODEL`: The model name to use for embeddings
+- `MODEL`: The model name to use for embeddings (the "nvidia/" prefix is optional and will be added automatically if omitted)
 
 ##### Optional Parameters
 
