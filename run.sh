@@ -30,7 +30,7 @@ while IFS= read -r line || [ -n "$line" ]; do
   
   # Extract key and value
   key=$(echo "$line" | cut -d= -f1 | tr -d ' ')
-  value=$(echo "$line" | cut -d= -f2- | tr -d ' ')
+  value=$(echo "$line" | cut -d= -f2-)
   
   case "$key" in
     URL)
@@ -41,15 +41,21 @@ while IFS= read -r line || [ -n "$line" ]; do
       ;;
     MODE)
       # Convert space-separated string to array
-      IFS=' ' read -r -a MODES <<< "$value"
+      # First trim leading/trailing whitespace, then split on spaces
+      trimmed_value=$(echo "$value" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+      IFS=' ' read -r -a MODES <<< "$trimmed_value"
       ;;
     BATCH_SIZE)
       # Convert space-separated string to array
-      IFS=' ' read -r -a BATCH_SIZES <<< "$value"
+      # First trim leading/trailing whitespace, then split on spaces
+      trimmed_value=$(echo "$value" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+      IFS=' ' read -r -a BATCH_SIZES <<< "$trimmed_value"
       ;;
     CONCURRENCY)
       # Convert space-separated string to array
-      IFS=' ' read -r -a CONCURRENCIES <<< "$value"
+      # First trim leading/trailing whitespace, then split on spaces
+      trimmed_value=$(echo "$value" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+      IFS=' ' read -r -a CONCURRENCIES <<< "$trimmed_value"
       ;;
     *)
       echo "Warning: Unknown setting '$key' in configuration file"
@@ -83,9 +89,9 @@ fi
 echo "Starting benchmark suite with:"
 echo "  URL: $URL"
 echo "  Model: $MODEL"
-echo "  Modes: ${MODES[*]}"
-echo "  Batch Sizes: ${BATCH_SIZES[*]}"
-echo "  Concurrencies: ${CONCURRENCIES[*]}"
+echo "  Modes: ${MODES[*]} (${#MODES[@]} modes)"
+echo "  Batch Sizes: ${BATCH_SIZES[*]} (${#BATCH_SIZES[@]} sizes)"
+echo "  Concurrencies: ${CONCURRENCIES[*]} (${#CONCURRENCIES[@]} concurrencies)"
 echo "----------------------------------------"
 
 # Function to run a single benchmark
@@ -94,6 +100,7 @@ run_benchmark() {
   local batch_size=$2
   local concurrency=$3
 
+  echo "Running benchmark with mode='$mode', batchSize='$batch_size', concurrency='$concurrency'"
   npm run bench -- --url "$URL" --model "$MODEL" --mode "$mode" --batchSize "$batch_size" --concurrency "$concurrency"
   
   # Check if benchmark was successful
