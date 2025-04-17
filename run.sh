@@ -20,6 +20,7 @@ MODEL=""
 MODES=()
 BATCH_SIZES=()
 CONCURRENCIES=()
+NUM_REQUESTS=1000  # Default value
 
 # Parse configuration file
 while IFS= read -r line || [ -n "$line" ]; do
@@ -57,6 +58,9 @@ while IFS= read -r line || [ -n "$line" ]; do
       trimmed_value=$(echo "$value" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
       IFS=' ' read -r -a CONCURRENCIES <<< "$trimmed_value"
       ;;
+    NUM_REQUESTS)
+      NUM_REQUESTS=$(echo "$value" | tr -d ' ')
+      ;;
     *)
       echo "Warning: Unknown setting '$key' in configuration file"
       ;;
@@ -92,6 +96,7 @@ echo "  Model: $MODEL"
 echo "  Modes: ${MODES[*]} (${#MODES[@]} modes)"
 echo "  Batch Sizes: ${BATCH_SIZES[*]} (${#BATCH_SIZES[@]} sizes)"
 echo "  Concurrencies: ${CONCURRENCIES[*]} (${#CONCURRENCIES[@]} concurrencies)"
+echo "  Number of Requests: $NUM_REQUESTS"
 echo "----------------------------------------"
 
 # Function to run a single benchmark
@@ -100,8 +105,8 @@ run_benchmark() {
   local batch_size=$2
   local concurrency=$3
 
-  echo "Running benchmark with mode='$mode', batchSize='$batch_size', concurrency='$concurrency'"
-  npm run bench -- --url "$URL" --model "$MODEL" --mode "$mode" --batchSize "$batch_size" --concurrency "$concurrency"
+  echo "Running benchmark with mode='$mode', batchSize='$batch_size', concurrency='$concurrency', numRequests='$NUM_REQUESTS'"
+  npm run bench -- --url "$URL" --model "$MODEL" --mode "$mode" --batchSize "$batch_size" --concurrency "$concurrency" --numRequests "$NUM_REQUESTS"
   
   # Check if benchmark was successful
   if [ $? -eq 0 ]; then
